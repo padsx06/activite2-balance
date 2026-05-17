@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Activité 2 — Balance et équations</title>
+  <style>
+    :root{
+      --bg:#f6f3ee;
+      --card:#ffffff;
+      --ink:#232323;
+      --muted:#656565;
+      --green:#2e8b57;
+      --green2:#eaf6ef;
+      --orange:#f28c28;
+      --orange2:#fff2df;
+      --red:#c85252;
+      --red2:#fae8e8;
+      --blue:#3068b7;
+      --blue2:#eaf1fb;
+      --purple:#7859b6;
+      --line:#2e2e2e;
+      --shadow: 0 16px 40px rgba(37,32,28,.12);
+      --radius: 20px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at 12% 10%, #fff 0 16%, transparent 16% 100%), var(--bg);
+      color:var(--ink);
+    }
+    header{
+      position:sticky;top:0;z-index:10;
+      background:rgba(246,243,238,.94);
+      backdrop-filter: blur(10px);
+      border-bottom:1px solid rgba(0,0,0,.08);
+    }
+    .topbar{max-width:1180px;margin:0 auto;padding:14px 18px;display:flex;align-items:center;gap:12px;justify-content:space-between;}
+    h1{font-size:clamp(1.05rem,2vw,1.5rem);margin:0;letter-spacing:.2px}
+    .small{font-size:.86rem;color:var(--muted)}
+    .progress-wrap{height:8px;background:#e2ded6;border-radius:100px;overflow:hidden;min-width:120px;max-width:280px;flex:1}
+    .progress{height:100%;width:0;background:linear-gradient(90deg,var(--orange),var(--green));transition:width .3s ease}
+    .layout{max-width:1180px;margin:0 auto;padding:22px 18px 42px;}
+    .screen{display:none;animation:fade .22s ease both;}
+    .screen.active{display:block;}
+    @keyframes fade{from{opacity:.2;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .panel{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;border:1px solid rgba(0,0,0,.06)}
+    .grid{display:grid;grid-template-columns:minmax(340px,1.1fr) minmax(320px,.9fr);gap:22px;align-items:start}
+    @media (max-width:880px){.grid{grid-template-columns:1fr}.topbar{flex-wrap:wrap}.progress-wrap{order:3;width:100%;max-width:none}}
+    .title-row{display:flex;gap:12px;align-items:center;margin-bottom:16px;}
+    .badge{display:inline-grid;place-items:center;width:42px;height:42px;border-radius:50%;background:var(--orange2);color:#8a4b00;font-weight:800;border:1px solid #ffd9a1}
+    h2{font-size:clamp(1.45rem,3vw,2.1rem);margin:.1rem 0 .2rem;}
+    h3{margin:0 0 8px;font-size:1.05rem}
+    p{line-height:1.55;margin:.5rem 0;color:#333}
+    .note{background:#fff7ea;border:1px solid #f6cf9a;border-radius:16px;padding:12px 14px;color:#543300}
+    .balance-card{background:#fbfbfb;border:1px solid #e5e5e5;border-radius:18px;padding:18px;min-height:360px;position:relative;overflow:hidden}
+    .balance-title{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:12px;color:var(--muted);font-size:.9rem}
+    .expression-strip{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;margin:8px 0 18px;font-weight:800;font-size:1.05rem;}
+    .expr{background:white;border:1px solid #dedede;border-radius:12px;padding:10px 12px;min-height:44px;text-align:center;}
+    .equal{font-size:1.4rem;color:var(--muted)}
+    .balance-visual{position:relative;height:270px;margin:0 auto;max-width:620px;}
+    .beam{position:absolute;left:14%;right:14%;height:7px;top:150px;background:var(--line);border-radius:999px;transition:transform .35s ease;transform-origin:center center}
+    .beam.bump{animation:bump .38s ease}
+    @keyframes bump{0%{transform:rotate(0)}30%{transform:rotate(-2deg)}65%{transform:rotate(2deg)}100%{transform:rotate(0)}}
+    .support{position:absolute;left:50%;top:88px;transform:translateX(-50%);width:8px;height:72px;background:var(--line);border-radius:999px}
+    .base{position:absolute;left:50%;top:158px;transform:translateX(-50%);width:34px;height:44px;border:5px solid var(--line);border-top:0;border-radius:0 0 12px 12px;background:#d9d9d9}
+    .plate{position:absolute;top:150px;width:38%;height:100px;}
+    .plate.left{left:3%}.plate.right{right:3%}
+    .plate:before{content:"";position:absolute;left:12%;right:12%;top:0;height:13px;border:6px solid var(--line);border-top:0;border-radius:0 0 50% 50%;background:#fff}
+    .items{position:absolute;left:0;right:0;bottom:20px;display:flex;align-items:flex-end;justify-content:center;gap:8px;flex-wrap:wrap;min-height:120px;padding:0 8px;}
+    .term{display:inline-flex;align-items:center;justify-content:center;min-width:42px;height:42px;padding:0 9px;border-radius:10px;border:2px solid rgba(0,0,0,.15);font-weight:800;font-size:1.08rem;box-shadow:0 4px 0 rgba(0,0,0,.12);}
+    .term.one{background:var(--orange2);border-color:#f0a248;color:#b25500}.term.negone{background:var(--red2);border-color:#cf6666;color:#a92121}
+    .term.x,.term.apple,.term.banana,.term.fish{background:var(--green2);border-color:#6fb684;color:#1e7042}
+    .term.negx,.term.negapple,.term.negbanana,.term.negfish{background:#f3eafb;border-color:#9c80c6;color:#5d3e96}
+    .term.stack{height:auto;min-height:42px;display:flex;flex-direction:column;gap:2px;padding:8px}.term.stack span{line-height:1}
+    .card-tools{display:grid;gap:12px;margin-top:14px}
+    .tool-row{display:flex;flex-wrap:wrap;gap:8px}
+    button,.btn{
+      appearance:none;border:0;border-radius:12px;background:#222;color:white;font-weight:750;padding:11px 14px;cursor:pointer;font-size:.95rem;transition:transform .12s ease, opacity .12s ease, background .12s ease;text-decoration:none;display:inline-flex;align-items:center;gap:8px;
+    }
+    button:hover,.btn:hover{transform:translateY(-1px)}button:active{transform:translateY(0)}
+    button.secondary{background:#ece7dc;color:#2e2e2e}button.good{background:var(--green)}button.warn{background:#b86410}button.danger{background:#a73939}button.blue{background:var(--blue)}
+    button.ghost{background:transparent;color:#333;border:1px solid #ddd}
+    .input-area{display:grid;gap:14px}
+    label{font-weight:800;font-size:.92rem;display:block;margin-bottom:7px;color:#303030}
+    input[type="text"], textarea{
+      width:100%;border:2px solid #ddd;border-radius:14px;padding:13px 14px;font-size:1rem;background:#fff;outline:none;transition:border-color .15s ease, box-shadow .15s ease;
+    }
+    input[type="text"]:focus,textarea:focus{border-color:#f0a248;box-shadow:0 0 0 4px rgba(242,140,40,.12)}
+    textarea{min-height:130px;resize:vertical;line-height:1.45}
+    .reason-box{border:3px solid #f0a248;background:linear-gradient(180deg,#fffaf2,#fff);border-radius:18px;padding:14px;box-shadow:0 8px 20px rgba(242,140,40,.12)}
+    .reason-box .reason-title{font-size:1.1rem;font-weight:900;color:#8b4b00;display:flex;align-items:center;gap:8px;margin-bottom:10px}
+    .feedback{min-height:46px;border-radius:14px;padding:12px 14px;font-weight:750;background:#f4f4f4;color:#555;border:1px solid #e1e1e1}.feedback.ok{background:#eaf6ef;border-color:#94d3a5;color:#155f2e}.feedback.no{background:#fae8e8;border-color:#efa0a0;color:#8e1d1d}.feedback.info{background:#eaf1fb;border-color:#9dbce8;color:#1b4c91}
+    .qcm{display:grid;gap:10px}.choice{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid #ddd;border-radius:14px;background:white;cursor:pointer}.choice input{margin-top:2px}.choice:hover{border-color:#f0a248;background:#fffaf2}
+    .nav{display:flex;justify-content:space-between;gap:12px;margin-top:18px;flex-wrap:wrap}
+    .chip-row{display:flex;flex-wrap:wrap;gap:8px}.chip{padding:7px 10px;border-radius:999px;background:#f0ede6;border:1px solid #ddd;color:#555;font-size:.85rem;font-weight:750}
+    .mini-table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #ddd;margin-top:10px}.mini-table th,.mini-table td{border:1px solid #ddd;padding:10px;text-align:left}.mini-table th{background:#f1f1f1;color:#333}
+    .intro-hero{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:center}.rob{font-size:6rem;text-align:center}.callout{border-left:5px solid var(--orange);padding:10px 14px;background:#fff7ea;border-radius:0 14px 14px 0}
+    @media(max-width:720px){.intro-hero{grid-template-columns:1fr}.rob{font-size:4rem}.balance-card{min-height:auto}.balance-visual{height:250px}.term{min-width:34px;height:34px;font-size:.95rem}}
+    .footer-actions{position:fixed;right:16px;bottom:16px;z-index:15;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.footer-actions button{box-shadow:0 8px 22px rgba(0,0,0,.15)}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <div>
+        <h1>Activité 2 — Balance et équations</h1>
+        <div class="small">Ajouter ou enlever le même objet des deux côtés pour conserver l'équilibre.</div>
+      </div>
+      <div class="progress-wrap" aria-label="progression"><div class="progress" id="progress"></div></div>
+      <div class="small" id="screenCounter"></div>
+    </div>
+  </header>
+  <main class="layout" id="app"></main>
+  <div class="footer-actions">
+    <button class="blue" onclick="downloadWork()">⬇ Télécharger mes réponses</button>
+  </div>
+<script>
+const TERM_META = {
+  one:{label:'+1', short:'+1', cls:'one', inverse:'negone'},
+  negone:{label:'−1', short:'−1', cls:'negone', inverse:'one'},
+  x:{label:'x', short:'x', cls:'x', inverse:'negx'},
+  negx:{label:'−x', short:'−x', cls:'negx', inverse:'x'},
+  apple:{label:'pomme', short:'🍏', cls:'apple', inverse:'negapple'},
+  negapple:{label:'−pomme', short:'−🍏', cls:'negapple', inverse:'apple'},
+  banana:{label:'banane', short:'🍌', cls:'banana', inverse:'negbanana'},
+  negbanana:{label:'−banane', short:'−🍌', cls:'negbanana', inverse:'banana'},
+  fish:{label:'poisson', short:'🐟', cls:'fish', inverse:'negfish'},
+  negfish:{label:'−poisson', short:'−🐟', cls:'negfish', inverse:'fish'}
+};
+const tasks = [
+  {type:'intro', title:'Jouons à la marchande', subtitle:'Balance de Roberval et équations', body:`Dans cette activité, tu vas résoudre des équations avec une balance. L'idée essentielle est simple : tu as le droit d'ajouter ou d'enlever des objets, mais tu dois faire exactement la même action sur les deux plateaux.`, bullets:['Si tu retires une pomme à gauche, tu retires aussi une pomme à droite.','Si tu ajoutes −1 à gauche, tu ajoutes aussi −1 à droite.','L’équilibre est conservé : l’équation reste équivalente.']},
+  {type:'solve', id:'mesure1', title:'Une première mesure', instruction:`Voici ce qui a été pesé : trois bananes ont la même masse que six masses de 1 kg. Quelle est la masse d'une banane ?`, unknown:'banana', unknownName:'une banane', left:{banana:3}, right:{one:6}, solution:2, unit:'kg'},
+  {type:'solve', id:'defi1', title:'Défi #1', instruction:`En enlevant ou en ajoutant le même objet des deux côtés, trouve la masse d'une pomme.`, unknown:'apple', unknownName:'une pomme', left:{apple:8, one:5}, right:{apple:6, one:10}, solution:2.5, unit:'kg'},
+  {type:'solve', id:'defi2', title:'Défi #2', instruction:`En enlevant ou en ajoutant le même objet des deux côtés, trouve la masse d'un poisson.`, unknown:'fish', unknownName:'un poisson', left:{fish:5, one:5}, right:{fish:9, one:3}, solution:0.5, unit:'kg'},
+  {type:'qcm', id:'qcm2', title:'Défi #2 — Choisir une équation', instruction:`Quelle équation semble correspondre le mieux à cette situation ?`, left:{fish:5, one:5}, right:{fish:9, one:3}, options:['5 poissons + 9 poissons = 5 kg + 3 kg','5 poissons + 5 kg = 9 poissons + 3 kg','14 poissons = 8 kg','5 poissons = 9 poissons + 8 kg','4 poissons + 3 kg = 5 poissons + 2 kg'], correct:1},
+  {type:'solve', id:'defi3', title:'Défi #3', instruction:`En enlevant ou en ajoutant le même objet des deux côtés, trouve la masse d'une banane.`, unknown:'banana', unknownName:'une banane', left:{banana:7, one:5}, right:{banana:3, one:6}, solution:0.25, unit:'kg'},
+  {type:'qcmSolve', id:'monsieurx', title:'Bienvenue à Monsieur x !', instruction:`Choisis l'équation qui correspond à la balance, puis détermine la valeur de x.`, unknown:'x', unknownName:'x', left:{x:4, one:3}, right:{x:3, negone:2}, solution:-5, unit:'', options:['7x = 1','4x − 2 = 3x + 3','4x + 3 = 3x − 2','4x + 3x = 3 − 2'], correct:2},
+  {type:'equationSolve', id:'defi4', title:'Défi #4', instruction:`Écris une équation qui correspond à la situation, puis propose une solution.`, unknown:'x', unknownName:'x', left:{x:2, negone:5}, right:{negx:3, one:5}, solution:2, expected:{lc:2, lk:-5, rc:-3, rk:5}},
+  {type:'equationSolve', id:'defi5', title:'Défi #5', instruction:`Écris une équation qui correspond à la situation, puis propose une solution.`, unknown:'x', unknownName:'x', left:{negx:2, one:2}, right:{x:1, one:6}, solution:-4/3, expected:{lc:-2, lk:2, rc:1, rk:6}},
+  {type:'modelSolve', id:'modeliser', title:'Modéliser une équation', instruction:`Représente et résous l'équation suivante : −2x − 4 = x + 2. Tu peux ensuite utiliser les opérations identiques des deux côtés pour la résoudre.`, unknown:'x', unknownName:'x', left:{negx:2, negone:4}, right:{x:1, one:2}, solution:-2, unit:''},
+  {type:'sandbox', id:'creation', title:'Créer votre propre équation', instruction:`Crée ta propre équation, modélise-la avec la balance, puis écris ta solution et ton raisonnement. Il n'y a pas une seule bonne réponse ici : l'objectif est d'expliquer clairement.`, unknown:'x', unknownName:'x', left:{}, right:{}}
+];
+let current = Number(localStorage.getItem('act2_current') || 0);
+let answers = JSON.parse(localStorage.getItem('act2_answers') || '{}');
+let states = JSON.parse(localStorage.getItem('act2_states') || '{}');
+let history = {};
+function clone(o){return JSON.parse(JSON.stringify(o || {}));}
+function saveAll(){localStorage.setItem('act2_current', current); localStorage.setItem('act2_answers', JSON.stringify(answers)); localStorage.setItem('act2_states', JSON.stringify(states));}
+function getState(i){const t=tasks[i]; if(!states[t.id]) states[t.id]={left:clone(t.left), right:clone(t.right)}; return states[t.id];}
+function normalizeSide(side){for(const [k,m] of Object.entries(TERM_META)){const inv=m.inverse; if(!inv || k>inv) continue; const a=side[k]||0, b=side[inv]||0; const min=Math.min(a,b); if(min>0){side[k]=a-min; side[inv]=b-min;}} Object.keys(side).forEach(k=>{if(!side[k]) delete side[k];});}
+function addTerm(side, term){const inv=TERM_META[term]?.inverse; if(inv && side[inv]>0){side[inv]--; if(side[inv]===0) delete side[inv];} else side[term]=(side[term]||0)+1; normalizeSide(side);}
+function opBoth(i, term){const t=tasks[i], st=getState(i); history[t.id]=history[t.id]||[]; history[t.id].push(clone(st)); addTerm(st.left, term); addTerm(st.right, term); saveAll(); render(); setTimeout(()=>{const b=document.querySelector('.screen.active .beam'); if(b){b.classList.add('bump'); setTimeout(()=>b.classList.remove('bump'),420)}},20);}
+function undo(i){const t=tasks[i]; if(history[t.id]?.length){states[t.id]=history[t.id].pop(); saveAll(); render();}}
+function resetState(i){const t=tasks[i]; states[t.id]={left:clone(t.left), right:clone(t.right)}; history[t.id]=[]; saveAll(); render();}
+function sideCoeffs(side, unknown){let c=0,k=0; c+=(side[unknown]||0); c-=(side['neg'+unknown]||0); if(unknown==='x'){} c+=(unknown==='x'?0:0); k+=(side.one||0); k-=(side.negone||0); return {c,k};}
+function exprString(side, unknown='x'){
+  const parts=[];
+  const add=(txt,n)=>{if(!n)return; if(n===1) parts.push(txt); else parts.push(`${n} ${txt}`)};
+  for(const key of ['banana','negbanana','apple','negapple','fish','negfish','x','negx','one','negone']){
+    const n=side[key]||0; if(!n) continue; const meta=TERM_META[key]; if(n===1) parts.push(meta.label); else parts.push(`${n} ${meta.label}`);
+  }
+  return parts.length?parts.join(' + ').replace(/\+ −/g,'− '):'0';
+}
+function renderTerm(key,n){const meta=TERM_META[key]; if(!n)return ''; const items=[]; const count=Math.min(n,12); for(let i=0;i<count;i++)items.push(`<span>${meta.short}</span>`); if(n>12)items.push(`<span>×${n}</span>`); return `<div class="term ${meta.cls} ${n>1?'stack':''}" title="${n} ${meta.label}">${items.join('')}</div>`;}
+function renderItems(side){let html=''; for(const key of ['banana','negbanana','apple','negapple','fish','negfish','x','negx','one','negone']) html+=renderTerm(key, side[key]||0); return html || '<span class="small">plateau vide</span>';}
+function balanceHTML(i,t){const st=(t.type==='intro')?{left:{},right:{}}:getState(i); return `<div class="balance-card">
+  <div class="balance-title"><strong>Balance interactive</strong><span>Action identique sur les deux côtés</span></div>
+  <div class="expression-strip"><div class="expr">${exprString(st.left,t.unknown||'x')}</div><div class="equal">=</div><div class="expr">${exprString(st.right,t.unknown||'x')}</div></div>
+  <div class="balance-visual" aria-label="balance">
+    <div class="support"></div><div class="beam"></div><div class="base"></div>
+    <div class="plate left"><div class="items">${renderItems(st.left)}</div></div>
+    <div class="plate right"><div class="items">${renderItems(st.right)}</div></div>
+  </div>
+  ${operationControls(i,t)}
+</div>`;}
+function operationControls(i,t){if(t.type==='qcm'||t.type==='intro')return ''; const unk=t.unknown||'x'; const negUnk = unk==='x'?'negx':'neg'+unk; const unkLabel=TERM_META[unk]?.label||unk; return `<div class="card-tools">
+  <div class="note"><strong>Règle :</strong> chaque bouton agit sur les deux plateaux en même temps. On garde donc une équation équivalente.</div>
+  <div class="tool-row">
+    <button class="good" onclick="opBoth(${i},'${unk}')">Ajouter ${unkLabel}</button>
+    <button class="warn" onclick="opBoth(${i},'${negUnk}')">Enlever ${unkLabel}</button>
+    <button class="good" onclick="opBoth(${i},'one')">Ajouter 1</button>
+    <button class="warn" onclick="opBoth(${i},'negone')">Enlever 1</button>
+  </div>
+  <div class="tool-row"><button class="secondary" onclick="undo(${i})">↶ Annuler</button><button class="ghost" onclick="resetState(${i})">Réinitialiser la balance</button></div>
+</div>`;}
+function answerVal(id,key){return (answers[id]?.[key]) || '';}
+function setAnswer(id,key,val){answers[id]=answers[id]||{}; answers[id][key]=val; saveAll();}
+function reasoningHTML(t){return `<div class="reason-box"><div class="reason-title">✍️ Mon raisonnement</div><textarea id="reason_${t.id}" placeholder="Explique les actions réalisées sur la balance et le calcul qui permet de trouver la valeur." oninput="setAnswer('${t.id}','reasoning',this.value)">${escapeHTML(answerVal(t.id,'reasoning'))}</textarea></div>`}
+function solveForm(i,t,withEquation=false){return `<div class="input-area">
+  ${withEquation?`<div><label for="eq_${t.id}">Équation correspondant à la balance</label><input type="text" id="eq_${t.id}" value="${escapeHTML(answerVal(t.id,'equation'))}" placeholder="Ex : 2x - 5 = -3x + 5" oninput="setAnswer('${t.id}','equation',this.value)"></div>`:''}
+  <div><label for="sol_${t.id}">Valeur de ${t.unknownName || 'x'} ${t.unit?`(${t.unit})`:''}</label><input type="text" id="sol_${t.id}" value="${escapeHTML(answerVal(t.id,'solution'))}" placeholder="Ex : 2 ou 5/2" oninput="setAnswer('${t.id}','solution',this.value)"></div>
+  ${reasoningHTML(t)}
+  <button class="good" onclick="checkTask(${i})">Valider</button>
+  <div class="feedback" id="fb_${t.id}">Saisis ta réponse, explique ton raisonnement, puis valide.</div>
+</div>`;}
+function qcmHTML(i,t,alsoSolve=false){const saved=answerVal(t.id,'choice'); return `<div class="input-area">
+  <div class="qcm">${t.options.map((o,idx)=>`<label class="choice"><input type="radio" name="choice_${t.id}" value="${idx}" ${String(saved)===String(idx)?'checked':''} onchange="setAnswer('${t.id}','choice',this.value)"><span>${escapeHTML(o)}</span></label>`).join('')}</div>
+  ${alsoSolve?`<div><label for="sol_${t.id}">Valeur de x</label><input type="text" id="sol_${t.id}" value="${escapeHTML(answerVal(t.id,'solution'))}" placeholder="Ex : -5" oninput="setAnswer('${t.id}','solution',this.value)"></div>`:''}
+  ${reasoningHTML(t)}
+  <button class="good" onclick="checkTask(${i})">Valider</button><div class="feedback" id="fb_${t.id}">Choisis une réponse, explique ton raisonnement, puis valide.</div>
+</div>`;}
+function sandboxForm(i,t){return `<div class="input-area">
+  <div><label for="own_eq_${t.id}">Mon équation</label><input type="text" id="own_eq_${t.id}" value="${escapeHTML(answerVal(t.id,'equation'))}" placeholder="Ex : 2x + 3 = x + 8" oninput="setAnswer('${t.id}','equation',this.value)"></div>
+  <div><label for="sol_${t.id}">Ma solution</label><input type="text" id="sol_${t.id}" value="${escapeHTML(answerVal(t.id,'solution'))}" placeholder="Ex : 5" oninput="setAnswer('${t.id}','solution',this.value)"></div>
+  ${reasoningHTML(t)}
+  <button class="good" onclick="checkTask(${i})">Vérifier ma cohérence</button><div class="feedback" id="fb_${t.id}">Construis une équation, écris une solution et explique.</div>
+</div>`;}
+function render(){const app=document.getElementById('app'); app.innerHTML=tasks.map((t,i)=>screenHTML(t,i)).join(''); document.querySelectorAll('.screen')[current]?.classList.add('active'); document.getElementById('progress').style.width=`${(current)/(tasks.length-1)*100}%`; document.getElementById('screenCounter').textContent=`Écran ${current+1} / ${tasks.length}`; saveAll();}
+function screenHTML(t,i){if(t.type==='intro') return `<section class="screen"><div class="panel"><div class="title-row"><span class="badge">${i+1}</span><div><h2>${t.title}</h2><div class="small">${t.subtitle}</div></div></div><div class="intro-hero"><div><p>${t.body}</p><div class="callout">${t.bullets.map(b=>`<p>• ${b}</p>`).join('')}</div><p class="note"><strong>Astuce :</strong> le bouton « Télécharger mes réponses » permet d'exporter les valeurs et les raisonnements à rendre dans l'ENT.</p></div><div class="rob">⚖️</div></div>${navHTML(i)}</div></section>`;
+let right=''; if(t.type==='solve'||t.type==='modelSolve') right=solveForm(i,t,false); if(t.type==='equationSolve') right=solveForm(i,t,true); if(t.type==='qcm') right=qcmHTML(i,t,false); if(t.type==='qcmSolve') right=qcmHTML(i,t,true); if(t.type==='sandbox') right=sandboxForm(i,t);
+return `<section class="screen"><div class="title-row"><span class="badge">${i+1}</span><div><h2>${t.title}</h2><p>${t.instruction}</p></div></div><div class="grid"><div>${balanceHTML(i,t)}</div><div class="panel">${right}</div></div>${navHTML(i)}</section>`;}
+function navHTML(i){return `<div class="nav"><button class="secondary" onclick="go(${Math.max(0,i-1)})" ${i===0?'disabled style="opacity:.4;cursor:not-allowed"':''}>← Précédent</button><div class="chip-row"><span class="chip">Équilibre conservé</span><span class="chip">Même action des deux côtés</span><span class="chip">Raisonnement obligatoire</span></div><button class="blue" onclick="go(${Math.min(tasks.length-1,i+1)})" ${i===tasks.length-1?'disabled style="opacity:.4;cursor:not-allowed"':''}>Suivant →</button></div>`}
+function go(i){current=i; saveAll(); render(); window.scrollTo({top:0,behavior:'smooth'});}
+function parseNum(s){if(s==null)return NaN; s=String(s).trim().replace(',','.').replace(/−/g,'-'); if(!s)return NaN; if(/^[-+]?\d+(\.\d+)?\s*\/\s*[-+]?\d+(\.\d+)?$/.test(s)){const [a,b]=s.split('/').map(Number); return a/b;} const n=Number(s); return Number.isFinite(n)?n:NaN;}
+function approx(a,b){return Math.abs(a-b)<1e-6;}
+function parseSide(side){let s=side.replace(/\s/g,'').replace(/−/g,'-').replace(/,/g,'.').replace(/\*/g,''); if(!s)return null; const tokens=s.match(/[+-]?[^+-]+/g)||[]; let c=0,k=0; for(const tok0 of tokens){let tok=tok0; if(tok.includes('x')){tok=tok.replace('x',''); if(tok===''||tok==='+') c+=1; else if(tok==='-') c-=1; else {let n=Number(tok); if(!Number.isFinite(n))return null; c+=n;}} else {let n=Number(tok); if(!Number.isFinite(n))return null; k+=n;}} return {c,k};}
+function parseEquation(eq){if(!eq || !eq.includes('=')) return null; const [l,r,...rest]=eq.split('='); if(rest.length)return null; const L=parseSide(l), R=parseSide(r); if(!L||!R)return null; return {lc:L.c, lk:L.k, rc:R.c, rk:R.k};}
+function sameEq(a,b){if(!a||!b)return false; return (approx(a.lc,b.lc)&&approx(a.lk,b.lk)&&approx(a.rc,b.rc)&&approx(a.rk,b.rk)) || (approx(a.lc,b.rc)&&approx(a.lk,b.rk)&&approx(a.rc,b.lc)&&approx(a.rk,b.lk));}
+function checkTask(i){const t=tasks[i], fb=document.getElementById(`fb_${t.id}`); let ok=false, msgs=[];
+ if(t.type==='solve'||t.type==='modelSolve'){const val=parseNum(answerVal(t.id,'solution')); ok=approx(val,t.solution); msgs.push(ok?`Bonne valeur : ${formatNum(t.solution)}${t.unit?' '+t.unit:''}.`:`La valeur saisie ne convient pas encore.`);}
+ if(t.type==='equationSolve'){const eq=parseEquation(answerVal(t.id,'equation')); const eqOK=sameEq(eq,t.expected); const val=parseNum(answerVal(t.id,'solution')); const valOK=approx(val,t.solution); ok=eqOK&&valOK; msgs.push(eqOK?'Équation correcte.':'Équation à revoir.'); msgs.push(valOK?`Solution correcte : ${formatNum(t.solution)}.`:'Solution à revoir.');}
+ if(t.type==='qcm'){const ch=Number(answerVal(t.id,'choice')); ok=ch===t.correct; msgs.push(ok?'Bonne équation.':'Ce n’est pas encore la meilleure équation.');}
+ if(t.type==='qcmSolve'){const ch=Number(answerVal(t.id,'choice')); const val=parseNum(answerVal(t.id,'solution')); const chOK=ch===t.correct, valOK=approx(val,t.solution); ok=chOK&&valOK; msgs.push(chOK?'Bonne équation.':'Équation à revoir.'); msgs.push(valOK?'Valeur de x correcte.':'Valeur de x à revoir.');}
+ if(t.type==='sandbox'){const val=parseNum(answerVal(t.id,'solution')); const eq=parseEquation(answerVal(t.id,'equation')); ok=!!eq && Number.isFinite(val); if(ok){const left=eq.lc*val+eq.lk, right=eq.rc*val+eq.rk; ok=approx(left,right); msgs.push(ok?'Ta solution vérifie ton équation.':'Ta solution ne vérifie pas encore ton équation.');} else msgs.push('Écris une équation et une solution numérique.');}
+ const reasoning=(answerVal(t.id,'reasoning')||'').trim(); if(!reasoning){ok=false; msgs.push('Ajoute ton raisonnement dans l’encadré orange.');}
+ fb.className='feedback '+(ok?'ok':'no'); fb.textContent=msgs.join(' ');}
+function formatNum(n){if(approx(n,Math.round(n))) return String(Math.round(n)); if(approx(n,0.5)) return '0,5'; if(approx(n,0.25)) return '0,25'; if(approx(n,2.5)) return '2,5'; if(approx(n,-4/3)) return '−4/3'; return String(n).replace('.',',');}
+function escapeHTML(s){return String(s||'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function downloadWork(){let lines=[]; lines.push('Activité 2 — Balance et équations'); lines.push('Nom : ____________________'); lines.push('Date : ___________________'); lines.push(''); for(const t of tasks){if(t.type==='intro')continue; const a=answers[t.id]||{}; lines.push('--- '+t.title+' ---'); if(a.choice!==undefined && t.options){lines.push('Choix : '+t.options[Number(a.choice)]);} if(a.equation)lines.push('Équation : '+a.equation); if(a.solution)lines.push('Solution : '+a.solution); lines.push('Raisonnement : '+(a.reasoning||'')); lines.push('');}
+ const blob=new Blob([lines.join('\n')],{type:'text/plain;charset=utf-8'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='mes_reponses_activite_2_balance.txt'; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(url); a.remove();},0);}
+render();
+</script>
+</body>
+</html>
