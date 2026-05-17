@@ -21,3 +21,7 @@ Si l'ENT accepte les intégrations iframe, utiliser le code fourni dans `code_if
 
 Les réponses sont enregistrées localement dans le navigateur de l'élève.
 L'élève doit cliquer sur **Télécharger mes réponses**, puis déposer le fichier `.txt` dans l'ENT.
+
+## Notation corrigée
+
+Les expressions affichées sur la balance utilisent maintenant une écriture mathématique plus propre : `6 pommes + 10` au lieu de `6 pomme + 10 +1`. Les constantes `+1` sont regroupées en nombres.

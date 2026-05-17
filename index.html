@@ -157,12 +157,32 @@ function undo(i){const t=tasks[i]; if(history[t.id]?.length){states[t.id]=histor
 function resetState(i){const t=tasks[i]; states[t.id]={left:clone(t.left), right:clone(t.right)}; history[t.id]=[]; saveAll(); render();}
 function sideCoeffs(side, unknown){let c=0,k=0; c+=(side[unknown]||0); c-=(side['neg'+unknown]||0); if(unknown==='x'){} c+=(unknown==='x'?0:0); k+=(side.one||0); k-=(side.negone||0); return {c,k};}
 function exprString(side, unknown='x'){
-  const parts=[];
-  const add=(txt,n)=>{if(!n)return; if(n===1) parts.push(txt); else parts.push(`${n} ${txt}`)};
-  for(const key of ['banana','negbanana','apple','negapple','fish','negfish','x','negx','one','negone']){
-    const n=side[key]||0; if(!n) continue; const meta=TERM_META[key]; if(n===1) parts.push(meta.label); else parts.push(`${n} ${meta.label}`);
+  const terms=[];
+  const names={
+    banana:['banane','bananes'],
+    apple:['pomme','pommes'],
+    fish:['poisson','poissons']
+  };
+  function pushTerm(sign, txt){ if(txt) terms.push({sign, txt}); }
+  function objectTerm(key, negKey){
+    const pos=side[key]||0, neg=side[negKey]||0;
+    if(pos){ const label=pos===1?names[key][0]:names[key][1]; pushTerm(1, pos===1?label:`${pos} ${label}`); }
+    if(neg){ const label=neg===1?names[key][0]:names[key][1]; pushTerm(-1, neg===1?label:`${neg} ${label}`); }
   }
-  return parts.length?parts.join(' + ').replace(/\+ −/g,'− '):'0';
+  objectTerm('banana','negbanana');
+  objectTerm('apple','negapple');
+  objectTerm('fish','negfish');
+  const xPos=side.x||0, xNeg=side.negx||0;
+  if(xPos) pushTerm(1, xPos===1?'x':`${xPos}x`);
+  if(xNeg) pushTerm(-1, xNeg===1?'x':`${xNeg}x`);
+  const constant=(side.one||0)-(side.negone||0);
+  if(constant>0) pushTerm(1, String(constant));
+  if(constant<0) pushTerm(-1, String(Math.abs(constant)));
+  if(!terms.length) return '0';
+  return terms.map((term,idx)=>{
+    if(idx===0) return term.sign<0?`−${term.txt}`:term.txt;
+    return term.sign<0?` − ${term.txt}`:` + ${term.txt}`;
+  }).join('');
 }
 function renderTerm(key,n){const meta=TERM_META[key]; if(!n)return ''; const items=[]; const count=Math.min(n,12); for(let i=0;i<count;i++)items.push(`<span>${meta.short}</span>`); if(n>12)items.push(`<span>×${n}</span>`); return `<div class="term ${meta.cls} ${n>1?'stack':''}" title="${n} ${meta.label}">${items.join('')}</div>`;}
 function renderItems(side){let html=''; for(const key of ['banana','negbanana','apple','negapple','fish','negfish','x','negx','one','negone']) html+=renderTerm(key, side[key]||0); return html || '<span class="small">plateau vide</span>';}
